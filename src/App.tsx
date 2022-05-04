@@ -6,19 +6,26 @@ import ReactCardFlip from "react-card-flip";
 function App() {
   const [isFlipped, setFlipped] = useState(false);
 
-  function flipCard(event: React.MouseEvent<HTMLButtonElement>) {
+  function flipCard(event: React.MouseEvent<HTMLDivElement>) {
     setFlipped(!isFlipped);
   }
 
   return (
     <div className="App">
       <h1>World Capitals</h1>
-      <img src={OsloOpera} alt="" width="200" />
+
       <ReactCardFlip isFlipped={isFlipped}>
-        <button onClick={flipCard}>Hey</button>
-        <button onClick={flipCard}>Hello</button>
+        <div className="card" onClick={flipCard}>
+          <img src={OsloOpera} alt="" />
+
+          <div className="text">Norway</div>
+        </div>
+        <div className="card" onClick={flipCard}>
+          <img></img>
+          <div className="text">Oslo</div>
+        </div>
       </ReactCardFlip>
-      <div>Norway</div>
+
       <div>sound</div>
       <div className="answer-button">
         <button>
