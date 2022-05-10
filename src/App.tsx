@@ -21,7 +21,7 @@ function App() {
           <div className="text">Norway</div>
         </div>
         <div className="card" onClick={flipCard}>
-          <img></img>
+          <img src={OsloOpera} alt="" />
           <div className="text">Oslo</div>
         </div>
       </ReactCardFlip>
