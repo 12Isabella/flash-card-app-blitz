@@ -1,9 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import OsloOpera from "./images/OsloOpera.jpg";
 import ReactCardFlip from "react-card-flip";
+import client from "./client";
 
 function App() {
+  useEffect(() => {
+    client
+      .fetch(
+        `*[_type == "flashcard"]{
+      front,
+      back,
+      image{
+        asset->{
+          _id,
+          url
+        },
+      },
+     
+    }`
+      )
+      .then((data) => console.log(data))
+      .catch(console.error);
+  }, []);
+
   const [isFlipped, setFlipped] = useState(false);
 
   function flipCard(event: React.MouseEvent<HTMLDivElement>) {
