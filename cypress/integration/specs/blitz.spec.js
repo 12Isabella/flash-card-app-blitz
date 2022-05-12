@@ -10,9 +10,13 @@ describe("flash-card-app-blitz", () => {
   });
 
   it("can flip card", () => {
-    const newItem = "Feed the cat";
-    cy.get(".card:visible").should("have.text", "Norway");
-    cy.get(".card:visible").click();
-    cy.get(".card:visible").should("have.text", "Oslo");
+    cy.get(".card:visible").invoke("text").as("front");
+    cy.get("@front").then((front) => {
+      cy.get(".card:visible").should("have.text", front);
+      cy.get(".card:visible").click();
+      cy.get(".card:visible").should("not.have.text", front);
+
+      cy.log(`front is ${front}`);
+    });
   });
 });
