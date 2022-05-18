@@ -12,6 +12,7 @@ type Card = {
 function App() {
   const [isFlipped, setFlipped] = useState(false);
   const [cardInfo, setCardInfo] = useState<Card[]>([]);
+  const [cardIndex, setCardIndex] = useState(0);
 
   useEffect(() => {
     client
@@ -38,6 +39,12 @@ function App() {
     setFlipped(!isFlipped);
   }
 
+  function showNextCard(event: React.MouseEvent<HTMLButtonElement>) {
+    let newCardIndex = (cardIndex + 1) % cardInfo.length;
+
+    setCardIndex(newCardIndex);
+  }
+
   if (cardInfo.length === 0) {
     return <div>loading...</div>;
   }
@@ -50,17 +57,17 @@ function App() {
         <div className="card" onClick={flipCard}>
           <img src={OsloOpera} alt="" />
 
-          <div className="text">{cardInfo[1].front}</div>
+          <div className="text">{cardInfo[cardIndex].front}</div>
         </div>
         <div className="card" onClick={flipCard}>
           <img src={OsloOpera} alt="" />
-          <div className="text">{cardInfo[1].back}</div>
+          <div className="text">{cardInfo[cardIndex].back}</div>
         </div>
       </ReactCardFlip>
 
       <div>sound</div>
       <div className="answer-button">
-        <button>
+        <button onClick={showNextCard}>
           <i className="fas fa-smile fa-5x"></i>
         </button>
         <button>
