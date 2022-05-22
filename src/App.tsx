@@ -8,6 +8,7 @@ import useDelayedState from "./use-delayed-state";
 type Card = {
   front: string;
   back: string;
+  image?: { asset: { url: string } };
 };
 
 function App() {
@@ -51,18 +52,24 @@ function App() {
     return <div>loading...</div>;
   }
 
+  const image =
+    cardInfo[cardIndex].image === undefined ? null : (
+      <img src={cardInfo[cardIndex].image?.asset.url} alt="" />
+    );
+
   return (
     <div className="App">
       <h1>World Capitals</h1>
 
       <ReactCardFlip isFlipped={isFlipped}>
         <div className="card" onClick={flipCard}>
-          <img src={OsloOpera} alt="" />
+          {image}
 
           <div className="text">{cardInfo[cardIndex].front}</div>
         </div>
         <div className="card" onClick={flipCard}>
-          <img src={OsloOpera} alt="" />
+          {image}
+
           <div className="text">{cardInfo[cardIndex].back}</div>
         </div>
       </ReactCardFlip>
