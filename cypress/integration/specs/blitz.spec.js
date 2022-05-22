@@ -46,4 +46,11 @@ describe("flash-card-app-blitz", () => {
       cy.log(`front is ${front}`);
     });
   });
+  it("does not show next answer before flipping card when switching to next card", () => {
+    cy.get(".card:visible").should("have.text", "Norway");
+    cy.get(".card:visible").click();
+    cy.get(".card:visible").should("have.text", "Oslo");
+    cy.get(".answer-button-right").click();
+    cy.get(".card:visible", { timeout: 0 }).should("not.have.text", "Paris");
+  });
 });
