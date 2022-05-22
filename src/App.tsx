@@ -40,6 +40,7 @@ function App() {
   }
 
   function showNextCard(event: React.MouseEvent<HTMLButtonElement>) {
+    setFlipped(false);
     let newCardIndex = (cardIndex + 1) % cardInfo.length;
 
     setCardIndex(newCardIndex);
@@ -67,10 +68,10 @@ function App() {
 
       <div>sound</div>
       <div className="answer-button">
-        <button onClick={showNextCard}>
+        <button className="answer-button-right" onClick={showNextCard}>
           <i className="fas fa-smile fa-5x"></i>
         </button>
-        <button>
+        <button className="answer-button-wrong" onClick={showNextCard}>
           <i className="fas fa-frown fa-5x"></i>
         </button>
       </div>
