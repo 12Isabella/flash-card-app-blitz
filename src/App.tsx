@@ -3,6 +3,7 @@ import "./App.css";
 import OsloOpera from "./images/OsloOpera.jpg";
 import ReactCardFlip from "react-card-flip";
 import client from "./client";
+import useDelayedState from "./use-delayed-state";
 
 type Card = {
   front: string;
@@ -12,7 +13,7 @@ type Card = {
 function App() {
   const [isFlipped, setFlipped] = useState(false);
   const [cardInfo, setCardInfo] = useState<Card[]>([]);
-  const [cardIndex, setCardIndex] = useState(0);
+  const [cardIndex, setCardIndex] = useDelayedState(0);
 
   useEffect(() => {
     client
@@ -43,7 +44,7 @@ function App() {
     setFlipped(false);
     let newCardIndex = (cardIndex + 1) % cardInfo.length;
 
-    setCardIndex(newCardIndex);
+    setCardIndex(newCardIndex, 200);
   }
 
   if (cardInfo.length === 0) {

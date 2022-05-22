@@ -51,6 +51,6 @@ describe("flash-card-app-blitz", () => {
     cy.get(".card:visible").click();
     cy.get(".card:visible").should("have.text", "Oslo");
     cy.get(".answer-button-right").click();
-    cy.get(".card:visible", { timeout: 0 }).should("not.have.text", "Paris");
+    cy.get(".card:visible", { timeout: 200 }).should("not.have.text", "Paris");
   });
 });
