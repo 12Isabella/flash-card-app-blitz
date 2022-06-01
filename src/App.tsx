@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import OsloOpera from "./images/OsloOpera.jpg";
 import ReactCardFlip from "react-card-flip";
 import client from "./client";
 import useDelayedState from "./use-delayed-state";
 
 type Card = {
+  _id: string;
   front: string;
   back: string;
   image?: { asset: { url: string } };
@@ -13,13 +13,14 @@ type Card = {
 
 function App() {
   const [isFlipped, setFlipped] = useState(false);
-  const [cardInfo, setCardInfo] = useState<Card[]>([]);
+  const [deck, setDeck] = useState<Card[]>([]);
   const [cardIndex, setCardIndex] = useDelayedState(0);
 
   useEffect(() => {
     client
       .fetch(
         `*[_type == "flashcard"]{
+      _id,
       front,
       back,
       image{
@@ -32,7 +33,7 @@ function App() {
       )
       .then((data) => {
         console.log(data);
-        setCardInfo(data);
+        setDeck(data);
       })
       .catch(console.error);
   }, []);
@@ -43,18 +44,22 @@ function App() {
 
   function showNextCard(event: React.MouseEvent<HTMLButtonElement>) {
     setFlipped(false);
-    let newCardIndex = (cardIndex + 1) % cardInfo.length;
+    let newCardIndex = (cardIndex + 1) % deck.length;
 
     setCardIndex(newCardIndex, 200);
+    // get id, set correct, set time - push to object "deckState"
+
+    let deckStateId = deck[cardIndex]._id;
+    console.log(deckStateId);
   }
 
-  if (cardInfo.length === 0) {
+  if (deck.length === 0) {
     return <div>loading...</div>;
   }
 
   const image =
-    cardInfo[cardIndex].image === undefined ? null : (
-      <img src={cardInfo[cardIndex].image?.asset.url} alt="" />
+    deck[cardIndex].image === undefined ? null : (
+      <img src={deck[cardIndex].image?.asset.url} alt="" />
     );
 
   return (
@@ -65,12 +70,12 @@ function App() {
         <div className="card" onClick={flipCard}>
           {image}
 
-          <div className="text">{cardInfo[cardIndex].front}</div>
+          <div className="text">{deck[cardIndex].front}</div>
         </div>
         <div className="card" onClick={flipCard}>
           {image}
 
-          <div className="text">{cardInfo[cardIndex].back}</div>
+          <div className="text">{deck[cardIndex].back}</div>
         </div>
       </ReactCardFlip>
 
