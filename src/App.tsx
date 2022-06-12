@@ -20,6 +20,7 @@ function App() {
   const [isFlipped, setFlipped] = useState(false);
   const [deck, setDeck] = useState<Card[]>([]);
   const [cardIndex, setCardIndex] = useDelayedState(0);
+  const [reviewCounter, setReviewCounter] = useState(0);
 
   useEffect(() => {
     client
@@ -42,6 +43,9 @@ function App() {
       })
       .catch(console.error);
   }, []);
+  useEffect(() => {
+    setReviewCounter(deck.length);
+  }, [deck]);
 
   function flipCard(event: React.MouseEvent<HTMLDivElement>) {
     setFlipped(!isFlipped);
@@ -53,6 +57,8 @@ function App() {
   ) {
     setFlipped(false);
     let newCardIndex = (cardIndex + 1) % deck.length;
+
+    setReviewCounter(reviewCounter - 1);
 
     setCardIndex(newCardIndex, 200);
     // send answer til storage
@@ -67,6 +73,10 @@ function App() {
     return <div>loading...</div>;
   }
 
+  if (reviewCounter === 0) {
+    return <div>Good job!</div>;
+  }
+
   const image =
     deck[cardIndex].image === undefined ? null : (
       <img src={deck[cardIndex].image?.asset.url} alt="" />
@@ -75,6 +85,8 @@ function App() {
   return (
     <div className="App">
       <h1>World Capitals</h1>
+      <h2>Deck contains {deck.length} cards</h2>
+      <h3>{reviewCounter} cards left to review</h3>
 
       <ReactCardFlip isFlipped={isFlipped}>
         <div className="card" onClick={flipCard}>
@@ -97,12 +109,14 @@ function App() {
         >
           <i className="fas fa-smile fa-5x"></i>
         </button>
+
         <button
           className="answer-button-wrong"
           onClick={(event) => showNextCard(event, false)}
         >
           <i className="fas fa-frown fa-5x"></i>
         </button>
+        <h3>Right: 8 Wrong: 3</h3>
       </div>
     </div>
   );
