@@ -11,6 +11,7 @@ type Card = {
   back: string;
   image?: { asset: { url: string } };
 };
+// Refactor counters -- one counter with an object
 
 // next step; 1. What do we do with the words that were correct/incorrect? 2. make it prettier and responsive
 
@@ -21,6 +22,9 @@ function App() {
   const [deck, setDeck] = useState<Card[]>([]);
   const [cardIndex, setCardIndex] = useDelayedState(0);
   const [reviewCounter, setReviewCounter] = useState(0);
+
+  const [counterRight, setCounterRight] = useState(0);
+  const [counterWrong, setCounterWrong] = useState(0);
 
   useEffect(() => {
     client
@@ -67,6 +71,12 @@ function App() {
     let cardId = deck[cardIndex]._id;
 
     saveAnswer(cardId, correct);
+
+    if (correct === true) {
+      setCounterRight(counterRight + 1);
+    } else {
+      setCounterWrong(counterWrong + 1);
+    }
   }
 
   if (deck.length === 0) {
@@ -116,7 +126,9 @@ function App() {
         >
           <i className="fas fa-frown fa-5x"></i>
         </button>
-        <h3>Right: 8 Wrong: 3</h3>
+        <h3>
+          Right: {counterRight} Wrong: {counterWrong}
+        </h3>
       </div>
     </div>
   );
