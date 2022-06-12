@@ -1,7 +1,11 @@
 import * as storage from "./storage";
 
 test("answer is saved", () => {
-  storage.saveAnswer("elephant", false);
-  expect(storage.getLastAnswer("elephant").correct).toBe(false);
-  expect(storage.getLastAnswer("elephant").time).toBeDefined();
+  const cardId = "elephant";
+  storage.saveAnswer(cardId, false);
+  const lastAnswer = storage.getLastAnswer(cardId);
+  expect(lastAnswer.correct).toBe(false);
+  expect(lastAnswer.time).toBeDefined();
+  const shouldntExist = storage.getLastAnswer("peanut");
+  expect(shouldntExist).toBeUndefined();
 });
