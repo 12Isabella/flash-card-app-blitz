@@ -1,4 +1,4 @@
-let state: any = {};
+let state: { [key: string]: { correct: boolean; time: Date } } = {};
 
 export function saveAnswer(cardId: string, correct: boolean) {
   state[cardId] = { correct: correct, time: new Date() };
