@@ -3,6 +3,7 @@ import "./App.css";
 import ReactCardFlip from "react-card-flip";
 import client from "./client";
 import useDelayedState from "./use-delayed-state";
+import { saveAnswer } from "./storage";
 
 type Card = {
   _id: string;
@@ -10,6 +11,10 @@ type Card = {
   back: string;
   image?: { asset: { url: string } };
 };
+
+// next step; 1. What do we do with the words that were correct/incorrect? 2. make it prettier and responsive
+
+// Note after going through all cards and/or on Click "stop reviewing" ("You knew 5 out of 10 cards. Do you want to review the ones you didn't know?")
 
 function App() {
   const [isFlipped, setFlipped] = useState(false);
@@ -42,15 +47,20 @@ function App() {
     setFlipped(!isFlipped);
   }
 
-  function showNextCard(event: React.MouseEvent<HTMLButtonElement>) {
+  function showNextCard(
+    event: React.MouseEvent<HTMLButtonElement>,
+    correct: boolean
+  ) {
     setFlipped(false);
     let newCardIndex = (cardIndex + 1) % deck.length;
 
     setCardIndex(newCardIndex, 200);
+    // send answer til storage
     // get id, set correct, set time - push to object "deckState"
 
-    let deckStateId = deck[cardIndex]._id;
-    console.log(deckStateId);
+    let cardId = deck[cardIndex]._id;
+
+    saveAnswer(cardId, correct);
   }
 
   if (deck.length === 0) {
@@ -81,10 +91,16 @@ function App() {
 
       <div>sound</div>
       <div className="answer-button">
-        <button className="answer-button-right" onClick={showNextCard}>
+        <button
+          className="answer-button-right"
+          onClick={(event) => showNextCard(event, true)}
+        >
           <i className="fas fa-smile fa-5x"></i>
         </button>
-        <button className="answer-button-wrong" onClick={showNextCard}>
+        <button
+          className="answer-button-wrong"
+          onClick={(event) => showNextCard(event, false)}
+        >
           <i className="fas fa-frown fa-5x"></i>
         </button>
       </div>
