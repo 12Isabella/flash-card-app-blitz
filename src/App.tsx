@@ -11,7 +11,6 @@ type Card = {
   back: string;
   image?: { asset: { url: string } };
 };
-// Refactor counters -- one counter with an object
 
 // next step; 1. What do we do with the words that were correct/incorrect? 2. make it prettier and responsive
 
@@ -21,10 +20,12 @@ function App() {
   const [isFlipped, setFlipped] = useState(false);
   const [deck, setDeck] = useState<Card[]>([]);
   const [cardIndex, setCardIndex] = useDelayedState(0);
-  const [reviewCounter, setReviewCounter] = useState(0);
 
-  const [counterRight, setCounterRight] = useState(0);
-  const [counterWrong, setCounterWrong] = useState(0);
+  const [counter, setCounter] = useState({
+    right: 0,
+    wrong: 0,
+    review: 0,
+  });
 
   useEffect(() => {
     client
@@ -48,7 +49,7 @@ function App() {
       .catch(console.error);
   }, []);
   useEffect(() => {
-    setReviewCounter(deck.length);
+    setCounter({ ...counter, review: deck.length });
   }, [deck]);
 
   function flipCard(event: React.MouseEvent<HTMLDivElement>) {
@@ -62,7 +63,7 @@ function App() {
     setFlipped(false);
     let newCardIndex = (cardIndex + 1) % deck.length;
 
-    setReviewCounter(reviewCounter - 1);
+    setCounter({ ...counter, review: counter.review - 1 });
 
     setCardIndex(newCardIndex, 200);
     // send answer til storage
@@ -73,9 +74,9 @@ function App() {
     saveAnswer(cardId, correct);
 
     if (correct === true) {
-      setCounterRight(counterRight + 1);
+      setCounter({ ...counter, right: counter.right + 1 });
     } else {
-      setCounterWrong(counterWrong + 1);
+      setCounter({ ...counter, wrong: counter.wrong + 1 });
     }
   }
 
@@ -83,7 +84,7 @@ function App() {
     return <div>loading...</div>;
   }
 
-  if (reviewCounter === 0) {
+  if (counter.review === 0) {
     return <div>Good job!</div>;
   }
 
@@ -96,7 +97,7 @@ function App() {
     <div className="App">
       <h1>World Capitals</h1>
       <h2>Deck contains {deck.length} cards</h2>
-      <h3>{reviewCounter} cards left to review</h3>
+      <h3>{counter.review} cards left to review</h3>
 
       <ReactCardFlip isFlipped={isFlipped}>
         <div className="card" onClick={flipCard}>
@@ -127,7 +128,7 @@ function App() {
           <i className="fas fa-frown fa-5x"></i>
         </button>
         <h3>
-          Right: {counterRight} Wrong: {counterWrong}
+          Right: {counter.right} Wrong: {counter.wrong}
         </h3>
       </div>
     </div>
