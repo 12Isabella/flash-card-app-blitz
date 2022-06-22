@@ -49,7 +49,7 @@ function App() {
       .catch(console.error);
   }, []);
   useEffect(() => {
-    setCounter({ ...counter, review: deck.length });
+    setCounter((c) => ({ ...c, review: deck.length }));
   }, [deck]);
 
   function flipCard(event: React.MouseEvent<HTMLDivElement>) {
@@ -63,8 +63,6 @@ function App() {
     setFlipped(false);
     let newCardIndex = (cardIndex + 1) % deck.length;
 
-    setCounter({ ...counter, review: counter.review - 1 });
-
     setCardIndex(newCardIndex, 200);
     // send answer til storage
     // get id, set correct, set time - push to object "deckState"
@@ -74,9 +72,17 @@ function App() {
     saveAnswer(cardId, correct);
 
     if (correct === true) {
-      setCounter({ ...counter, right: counter.right + 1 });
+      setCounter({
+        ...counter,
+        right: counter.right + 1,
+        review: counter.review - 1,
+      });
     } else {
-      setCounter({ ...counter, wrong: counter.wrong + 1 });
+      setCounter({
+        ...counter,
+        wrong: counter.wrong + 1,
+        review: counter.review - 1,
+      });
     }
   }
 
@@ -85,7 +91,11 @@ function App() {
   }
 
   if (counter.review === 0) {
-    return <div>Good job!</div>;
+    return (
+      <div>
+        You answered {counter.right} out of {deck.length} cards correctly.{" "}
+      </div>
+    );
   }
 
   const image =
