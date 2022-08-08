@@ -3,7 +3,8 @@ import "./App.css";
 import ReactCardFlip from "react-card-flip";
 import client from "./client";
 import useDelayedState from "./use-delayed-state";
-import { saveAnswer } from "./storage";
+import { getLastAnswer, saveAnswer } from "./storage";
+import { FinishedReview } from "./FinishedReview";
 
 type Card = {
   _id: string;
@@ -12,9 +13,7 @@ type Card = {
   image?: { asset: { url: string } };
 };
 
-// next step; 1. What do we do with the words that were correct/incorrect? 2. make it prettier and responsive
-
-// Note after going through all cards and/or on Click "stop reviewing" ("You knew 5 out of 10 cards. Do you want to review the ones you didn't know?")
+// next step; 1. change storage to database 2. make it prettier and responsive
 
 function App() {
   const [isFlipped, setFlipped] = useState(false);
@@ -27,7 +26,9 @@ function App() {
     review: 0,
   });
 
-  useEffect(() => {
+  const [lastSavedId, setlastSavedId] = useState("");
+
+  const initialise = () => {
     client
       .fetch(
         `*[_type == "flashcard"]{
@@ -43,14 +44,46 @@ function App() {
     }`
       )
       .then((data) => {
-        console.log(data);
         setDeck(data);
       })
       .catch(console.error);
+  };
+
+  useEffect(() => {
+    initialise();
   }, []);
+
   useEffect(() => {
     setCounter((c) => ({ ...c, review: deck.length }));
   }, [deck]);
+
+  function reset() {
+    setCounter({
+      right: 0,
+      wrong: 0,
+      review: deck.length,
+    });
+
+    initialise();
+  }
+
+  function retry() {
+    const wrong = deck.filter(
+      (card) => getLastAnswer(card._id)?.correct === false
+    );
+
+    setCounter({
+      right: 0,
+      wrong: 0,
+      review: wrong.length,
+    });
+    setCardIndex(0); // delayed state
+    setDeck(wrong);
+  }
+
+  function stopReviewing() {
+    setCounter({ ...counter, review: 0 });
+  }
 
   function flipCard(event: React.MouseEvent<HTMLDivElement>) {
     setFlipped(!isFlipped);
@@ -63,13 +96,14 @@ function App() {
     setFlipped(false);
     let newCardIndex = (cardIndex + 1) % deck.length;
 
-    setCardIndex(newCardIndex, 200);
-    // send answer til storage
-    // get id, set correct, set time - push to object "deckState"
-
     let cardId = deck[cardIndex]._id;
 
     saveAnswer(cardId, correct);
+    setlastSavedId(cardId);
+
+    setCardIndex(newCardIndex, 200);
+    // send answer til storage
+    // get id, set correct, set time - push to object "deckState"
 
     if (correct === true) {
       setCounter({
@@ -92,9 +126,12 @@ function App() {
 
   if (counter.review === 0) {
     return (
-      <div>
-        You answered {counter.right} out of {deck.length} cards correctly.{" "}
-      </div>
+      <FinishedReview
+        right={counter.right}
+        wrong={counter.wrong}
+        reset={reset}
+        retry={retry}
+      />
     );
   }
 
@@ -123,24 +160,36 @@ function App() {
       </ReactCardFlip>
 
       <div>sound</div>
-      <div className="answer-button">
+      <div className="answer-buttons">
         <button
           className="answer-button-right"
-          onClick={(event) => showNextCard(event, true)}
+          onClick={(event) => {
+            let cardId = deck[cardIndex]._id;
+            if (cardId !== lastSavedId) {
+              showNextCard(event, true);
+            } else {
+            }
+          }}
         >
           <i className="fas fa-smile fa-5x"></i>
         </button>
 
         <button
           className="answer-button-wrong"
-          onClick={(event) => showNextCard(event, false)}
+          onClick={(event) => {
+            let cardId = deck[cardIndex]._id;
+            if (cardId !== lastSavedId) {
+              showNextCard(event, false);
+            }
+          }}
         >
           <i className="fas fa-frown fa-5x"></i>
         </button>
-        <h3>
-          Right: {counter.right} Wrong: {counter.wrong}
-        </h3>
       </div>
+      <h3>
+        Right: {counter.right} Wrong: {counter.wrong}
+      </h3>
+      <button onClick={stopReviewing}>I want out!</button>
     </div>
   );
 }
