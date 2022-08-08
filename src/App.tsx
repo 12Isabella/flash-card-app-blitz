@@ -27,6 +27,7 @@ function App() {
   });
 
   const [lastSavedId, setlastSavedId] = useState("");
+  const [lastReviewStart, setLastReviewStart] = useState(new Date());
 
   const initialise = () => {
     client
@@ -69,7 +70,9 @@ function App() {
 
   function retry() {
     const wrong = deck.filter(
-      (card) => getLastAnswer(card._id)?.correct === false
+      (card) =>
+        getLastAnswer(card._id)?.correct === false &&
+        getLastAnswer(card._id).time > lastReviewStart
     );
 
     setCounter({
@@ -79,6 +82,7 @@ function App() {
     });
     setCardIndex(0); // delayed state
     setDeck(wrong);
+    setLastReviewStart(new Date());
   }
 
   function stopReviewing() {
