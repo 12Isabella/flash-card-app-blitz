@@ -5,6 +5,10 @@ import client from "./client";
 import useDelayedState from "./use-delayed-state";
 import { getLastAnswer, saveAnswer } from "./storage";
 import { FinishedReview } from "./FinishedReview";
+import { supabase } from "./supabaseClient";
+import Auth from "./Auth";
+import Account from "./Account";
+import { Session } from "@supabase/supabase-js";
 
 type Card = {
   _id: string;
@@ -19,6 +23,8 @@ function App() {
   const [isFlipped, setFlipped] = useState(false);
   const [deck, setDeck] = useState<Card[]>([]);
   const [cardIndex, setCardIndex] = useDelayedState(0);
+
+  const [session, setSession] = useState<Session | null>(null);
 
   const [counter, setCounter] = useState({
     right: 0,
@@ -52,6 +58,16 @@ function App() {
 
   useEffect(() => {
     initialise();
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
   }, []);
 
   useEffect(() => {
@@ -145,55 +161,62 @@ function App() {
     );
 
   return (
-    <div className="App">
-      <h1>World Capitals</h1>
-      <h2>Deck contains {deck.length} cards</h2>
-      <h3>{counter.review} cards left to review</h3>
+    <div>
+      {!session ? (
+        <Auth />
+      ) : (
+        <div className="App">
+          <Account session={session} />
+          <h1>World Capitals</h1>
+          <h2>Deck contains {deck.length} cards</h2>
+          <h3>{counter.review} cards left to review</h3>
 
-      <ReactCardFlip isFlipped={isFlipped}>
-        <div className="card" onClick={flipCard}>
-          {image}
+          <ReactCardFlip isFlipped={isFlipped}>
+            <div className="card" onClick={flipCard}>
+              {image}
 
-          <div className="text">{deck[cardIndex].front}</div>
+              <div className="text">{deck[cardIndex].front}</div>
+            </div>
+            <div className="card" onClick={flipCard}>
+              {image}
+
+              <div className="text">{deck[cardIndex].back}</div>
+            </div>
+          </ReactCardFlip>
+
+          <div>sound</div>
+          <div className="answer-buttons">
+            <button
+              className="answer-button-right"
+              onClick={(event) => {
+                let cardId = deck[cardIndex]._id;
+                if (cardId !== lastSavedId) {
+                  showNextCard(event, true);
+                } else {
+                }
+              }}
+            >
+              <i className="fas fa-smile fa-5x"></i>
+            </button>
+
+            <button
+              className="answer-button-wrong"
+              onClick={(event) => {
+                let cardId = deck[cardIndex]._id;
+                if (cardId !== lastSavedId) {
+                  showNextCard(event, false);
+                }
+              }}
+            >
+              <i className="fas fa-frown fa-5x"></i>
+            </button>
+          </div>
+          <h3>
+            Right: {counter.right} Wrong: {counter.wrong}
+          </h3>
+          <button onClick={stopReviewing}>I want out!</button>
         </div>
-        <div className="card" onClick={flipCard}>
-          {image}
-
-          <div className="text">{deck[cardIndex].back}</div>
-        </div>
-      </ReactCardFlip>
-
-      <div>sound</div>
-      <div className="answer-buttons">
-        <button
-          className="answer-button-right"
-          onClick={(event) => {
-            let cardId = deck[cardIndex]._id;
-            if (cardId !== lastSavedId) {
-              showNextCard(event, true);
-            } else {
-            }
-          }}
-        >
-          <i className="fas fa-smile fa-5x"></i>
-        </button>
-
-        <button
-          className="answer-button-wrong"
-          onClick={(event) => {
-            let cardId = deck[cardIndex]._id;
-            if (cardId !== lastSavedId) {
-              showNextCard(event, false);
-            }
-          }}
-        >
-          <i className="fas fa-frown fa-5x"></i>
-        </button>
-      </div>
-      <h3>
-        Right: {counter.right} Wrong: {counter.wrong}
-      </h3>
-      <button onClick={stopReviewing}>I want out!</button>
+      )}
     </div>
   );
 }
