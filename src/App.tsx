@@ -109,7 +109,7 @@ function App() {
     setFlipped(!isFlipped);
   }
 
-  function showNextCard(
+  async function showNextCard(
     event: React.MouseEvent<HTMLButtonElement>,
     correct: boolean
   ) {
@@ -118,7 +118,9 @@ function App() {
 
     let cardId = deck[cardIndex]._id;
 
-    saveAnswer(cardId, correct);
+    if (session) {
+      await saveAnswer(cardId, correct, session);
+    }
     setlastSavedId(cardId);
 
     setCardIndex(newCardIndex, 200);
