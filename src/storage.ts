@@ -8,7 +8,7 @@ export async function saveAnswer(
   session: Session
 ) {
   try {
-    const { data, error } = await supabase.from("answers").insert([
+    const { data, error } = await supabase.from("answers").upsert([
       {
         cardId: cardId,
         correct: correct,
