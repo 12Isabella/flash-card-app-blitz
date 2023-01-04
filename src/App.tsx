@@ -9,6 +9,7 @@ import { supabase } from "./supabaseClient";
 import Auth from "./Auth";
 import Account from "./Account";
 import { Session } from "@supabase/supabase-js";
+import { promises } from "stream";
 
 type Card = {
   _id: string;
@@ -84,12 +85,19 @@ function App() {
     initialise();
   }
 
-  function retry() {
-    const wrong = deck.filter(
-      (card) =>
-        getLastAnswer(card._id)?.correct === false &&
-        getLastAnswer(card._id).time > lastReviewStart
+  async function retry() {
+    debugger;
+    const lastAnswers = await Promise.all(
+      deck.map((card) => getLastAnswer(card._id))
     );
+
+    const wrong = deck.filter((card) => {
+      const lastAns = lastAnswers.find((ans) => ans.id === card._id);
+
+      return (
+        lastAns?.correct === false && new Date(lastAns.time) > lastReviewStart
+      );
+    });
 
     setCounter({
       right: 0,

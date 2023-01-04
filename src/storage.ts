@@ -1,6 +1,5 @@
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "./supabaseClient";
-let state: { [key: string]: { correct: boolean; time: Date } } = {};
 
 export async function saveAnswer(
   cardId: string,
@@ -22,10 +21,17 @@ export async function saveAnswer(
   }
 }
 
-export function getLastAnswer(cardId: string): {
-  correct: boolean;
-  time: Date;
-} {
+//const { data, error } = await supabase.from("cities").select();
+
+export async function getLastAnswer(cardId: string) {
+  const result = await supabase.from("answers").select().eq("cardId", cardId);
+  //console.log(result);
+
   //to do: read from supabase
-  return state[cardId];
+
+  return {
+    correct: result.data![0].correct,
+    time: result.data![0].updated_at,
+    id: cardId,
+  };
 }
